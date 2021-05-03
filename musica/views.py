@@ -58,7 +58,7 @@ class ArtistasUnico(APIView):
         artista = Artistas.objects.all().filter(id=id)
         if artista:
             serializer = ArtistasSerializer(artista, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data[0], status=status.HTTP_200_OK)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, id):
@@ -74,7 +74,7 @@ class AlbumsUnico(APIView):
         album = Album.objects.all().filter(id=id)
         if album:
             serializer = AlbumsSerializer(album, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data[0], status=status.HTTP_200_OK)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, id):
@@ -90,7 +90,7 @@ class CancionesUnico(APIView):
         cancion = Cancion.objects.all().filter(id=id)
         if cancion:
             serializer = CancionesSerializer(cancion, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data[0], status=status.HTTP_200_OK)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, id):
