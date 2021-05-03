@@ -109,10 +109,8 @@ class AlbumsArtista(APIView):
         if not artista:
             return Response(status=status.HTTP_404_NOT_FOUND)
         albums = Album.objects.all().filter(artist_id=id)
-        if albums:
-            serializer = AlbumsSerializer(albums, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = AlbumsSerializer(albums, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, id):
         info = request.data
