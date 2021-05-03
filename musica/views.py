@@ -22,6 +22,8 @@ class ArtistasList(APIView):
         if "name" not in info.keys() or "age" not in info.keys():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         id = b64encode(info['name'].encode()).decode('utf-8')
+        if len(id) > 22:
+            id = id[0:22]
         artista = Artistas.objects.all().filter(id=id)
         if artista:
             serializer = ArtistasSerializer(artista, many=True)
@@ -111,12 +113,12 @@ class AlbumsArtista(APIView):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request, id):
-        artista = Artistas.objects.all().filter(id=id)
-        if not artista:
-            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         info = request.data
         if "name" not in info.keys() or "genre" not in info.keys():
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        artista = Artistas.objects.all().filter(id=id)
+        if not artista:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         id1 = info['name']+":"+id
         id1 = b64encode(id1.encode()).decode('utf-8')
         album = Album.objects.all().filter(id=id1)
