@@ -15,78 +15,109 @@ class ArtistasList(APIView):
     def get(self, request):
         artistas = Artistas.objects.all()
         serializer = ArtistasSerializer(artistas, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         info = request.data
         id = b64encode(info['name'].encode()).decode('utf-8')
-        albums = "https://tarea2pvlecaros.herokuapp.com/"+id+"/albums"
-        tracks = "https://tarea2pvlecaros.herokuapp.com/"+id+"/tracks"
+        artista = Artistas.objects.all().filter(id=id)
+        if artista:
+            serializer = ArtistasSerializer(artista, many=True)
+            return Response(serializer.data, status=status.HTTP_409_CONFLICT)
+        albums = "https://tarea2pvlecaros.herokuapp.com/artists/"+id+"/albums"
+        tracks = "https://tarea2pvlecaros.herokuapp.com/artists/"+id+"/tracks"
         yo = "https://tarea2pvlecaros.herokuapp.com/artists/"+id
         edad = int(info['age'])
         nuevo_artista = Artistas.objects.create(id=id, name=info['name'], age=edad, albums=albums, tracks=tracks)
         nuevo_artista.self = yo
         nuevo_artista.save()
         serializer = ArtistasSerializer(nuevo_artista)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class AlbumsList(APIView):
     def get(self, request):
         albums = Album.objects.all()
         serializer = AlbumsSerializer(albums, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CancionesList(APIView):
     def get(self, request):
         canciones = Cancion.objects.all()
         serializer = CancionesSerializer(canciones, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ArtistasUnico(APIView):
     def get(self, request, id):
-        artista = Artistas.objects.get(id=id)
-        serializer = ArtistasSerializer(artista)
-        return Response(serializer.data)
+        artista = Artistas.objects.all().filter(id=id)
+        if artista:
+            serializer = ArtistasSerializer(artista, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, id):
-        Artistas.objects.get(id=id).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        artista = Artistas.objects.all().filter(id=id)
+        if artista:
+            Artistas.objects.get(id=id).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 class AlbumsUnico(APIView):
     def get(self, request, id):
-        album = Album.objects.get(id=id)
-        serializer = AlbumsSerializer(album)
-        return Response(serializer.data)
+        album = Album.objects.all().filter(id=id)
+        if album:
+            serializer = AlbumsSerializer(album, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, id):
-        Album.objects.get(id=id).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        album = Album.objects.all().filter(id=id)
+        if album:
+            Album.objects.get(id=id).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class CancionesUnico(APIView):
     def get(self, request, id):
-        cancion = Cancion.objects.get(id=id)
-        serializer = CancionesSerializer(cancion)
-        return Response(serializer.data)
+        cancion = Cancion.objects.all().filter(id=id)
+        if cancion:
+            serializer = CancionesSerializer(cancion, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, id):
-        Cancion.objects.get(id=id).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        cancion = Cancion.objects.all().filter(id=id)
+        if cancion:
+            Cancion.objects.get(id=id).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class AlbumsArtista(APIView):
     def get(self, request, id):
+        artista = Artistas.objects.all().filter(id=id)
+        if not artista:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         albums = Album.objects.all().filter(artist_id=id)
-        serializer = AlbumsSerializer(albums, many=True)
-        return Response(serializer.data)
+        if albums:
+            serializer = AlbumsSerializer(albums, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request, id):
+        artista = Artistas.objects.all().filter(id=id)
+        if not artista:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         info = request.data
         id1 = info['name']+":"+id
         id1 = b64encode(id1.encode()).decode('utf-8')
+        album = Album.objects.all().filter(id=id1)
+        if album:
+            return Response(status=status.HTTP_409_CONFLICT)
         artista = Artistas.objects.get(id=id)
         if len(id1) > 22:
             id1 = id1[0:22]
@@ -97,11 +128,14 @@ class AlbumsArtista(APIView):
         nuevo_album.self = yo
         nuevo_album.save()
         serializer = AlbumsSerializer(nuevo_album)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class CancionesArtista(APIView):
     def get(self, request, id):
+        artista = Artistas.objects.all().filter(id=id)
+        if not artista:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         albums = Album.objects.all().filter(artist_id=id)
         serializer = AlbumsSerializer(albums, many=True)
         lista = []
@@ -110,19 +144,28 @@ class CancionesArtista(APIView):
             serializer1 = CancionesSerializer(canciones, many=True)
             for cancion in serializer1.data:
                 lista.append(cancion)
-        return Response(lista)
+        return Response(lista, status=status.HTTP_200_OK)
 
 
 class CancionesAlbum(APIView):
     def get(self, request, id):
+        album = Album.objects.all().filter(id=id)
+        if not album:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         canciones = Cancion.objects.all().filter(album_id=id)
         serializer = CancionesSerializer(canciones, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, id):
+        album = Album.objects.all().filter(id=id)
+        if not album:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         info = request.data
         id1 = info['name']+":"+id
         id1 = b64encode(id1.encode()).decode('utf-8')
+        cancion = Cancion.objects.all().filter(id=id1)
+        if cancion:
+            return Response(status=status.HTTP_409_CONFLICT)
         padre = Album.objects.get(id=id)
         if len(id1) > 22:
             id1 = id1[0:22]
@@ -135,11 +178,14 @@ class CancionesAlbum(APIView):
         nueva_cancion.self = yo
         nueva_cancion.save()
         serializer = CancionesSerializer(nueva_cancion)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class CancionPlay(APIView):
     def put(self, request, id):
+        cancion = Cancion.objects.all().filter(id=id)
+        if not cancion:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         cancion = Cancion.objects.get(id=id)
         cancion.times_played += 1
         cancion.save()
@@ -148,6 +194,9 @@ class CancionPlay(APIView):
 
 class AlbumPlay(APIView):
     def put(self, request, id):
+        album = Album.objects.all().filter(id=id)
+        if not album:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         canciones = Cancion.objects.all().filter(album_id=id)
         for cancion in canciones:
             cancion.times_played += 1
@@ -157,6 +206,9 @@ class AlbumPlay(APIView):
 
 class ArtistaPlay(APIView):
     def put(self, request, id):
+        artista = Artistas.objects.all().filter(id=id)
+        if not artista:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         albums = Album.objects.all().filter(artist_id=id)
         for album in albums:
             canciones = Cancion.objects.all().filter(album_id=album.id)
