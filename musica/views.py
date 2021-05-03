@@ -172,13 +172,13 @@ class CancionesAlbum(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         id1 = info['name']+":"+id
         id1 = b64encode(id1.encode()).decode('utf-8')
+        if len(id1) > 22:
+            id1 = id1[0:22]
         cancion = Cancion.objects.all().filter(id=id1)
         if cancion:
             serializer = CancionesSerializer(cancion, many=True)
             return Response(serializer.data[0], status=status.HTTP_409_CONFLICT)
         padre = Album.objects.get(id=id)
-        if len(id1) > 22:
-            id1 = id1[0:22]
         id_artista = Album.objects.get(id=id)
         id_artista = id_artista.artist_id
         artist= "https://tarea2pvlecaros.herokuapp.com/artists/"+id_artista
