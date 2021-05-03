@@ -19,6 +19,10 @@ class ArtistasList(APIView):
 
     def post(self, request):
         info = request.data
+        if "name" not in info.keys() or "age" not in info.keys():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if type(info["age"]) != int or type(info["name"]) != str:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         id = b64encode(info['name'].encode()).decode('utf-8')
         artista = Artistas.objects.all().filter(id=id)
         if artista:
@@ -113,6 +117,10 @@ class AlbumsArtista(APIView):
         if not artista:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         info = request.data
+        if "name" not in info.keys() or "genre" not in info.keys():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if type(info["genre"]) != str or type(info["name"]) != str:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         id1 = info['name']+":"+id
         id1 = b64encode(id1.encode()).decode('utf-8')
         album = Album.objects.all().filter(id=id1)
@@ -161,6 +169,10 @@ class CancionesAlbum(APIView):
         if not album:
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         info = request.data
+        if "name" not in info.keys() or "duration" not in info.keys():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if type(info["duration"]) != float or type(info["name"]) != str:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         id1 = info['name']+":"+id
         id1 = b64encode(id1.encode()).decode('utf-8')
         cancion = Cancion.objects.all().filter(id=id1)
