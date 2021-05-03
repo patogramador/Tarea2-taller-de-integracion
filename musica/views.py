@@ -29,12 +29,12 @@ class ArtistasList(APIView):
         albums = "https://tarea2pvlecaros.herokuapp.com/artists/"+id+"/albums"
         tracks = "https://tarea2pvlecaros.herokuapp.com/artists/"+id+"/tracks"
         yo = "https://tarea2pvlecaros.herokuapp.com/artists/"+id
-        edad = int(info['age'])
+        edad = info['age']
         nuevo_artista = Artistas.objects.create(id=id, name=info['name'], age=edad, albums=albums, tracks=tracks)
         nuevo_artista.self = yo
         nuevo_artista.save()
         serializer = ArtistasSerializer(nuevo_artista)
-        return Response(serializer.data[0], status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class AlbumsList(APIView):
@@ -121,7 +121,8 @@ class AlbumsArtista(APIView):
         id1 = b64encode(id1.encode()).decode('utf-8')
         album = Album.objects.all().filter(id=id1)
         if album:
-            return Response(status=status.HTTP_409_CONFLICT)
+            serializer = AlbumsSerializer(album, many=True)
+            return Response(serializer.data[0], status=status.HTTP_409_CONFLICT)
         artista = Artistas.objects.get(id=id)
         if len(id1) > 22:
             id1 = id1[0:22]
@@ -171,7 +172,8 @@ class CancionesAlbum(APIView):
         id1 = b64encode(id1.encode()).decode('utf-8')
         cancion = Cancion.objects.all().filter(id=id1)
         if cancion:
-            return Response(status=status.HTTP_409_CONFLICT)
+            serializer = CancionesSerializer(cancion, many=True)
+            return Response(serializer.data[0], status=status.HTTP_409_CONFLICT)
         padre = Album.objects.get(id=id)
         if len(id1) > 22:
             id1 = id1[0:22]
