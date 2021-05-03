@@ -121,13 +121,13 @@ class AlbumsArtista(APIView):
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         id1 = info['name']+":"+id
         id1 = b64encode(id1.encode()).decode('utf-8')
+        if len(id1) > 22:
+            id1 = id1[0:22]
         album = Album.objects.all().filter(id=id1)
         if album:
             serializer = AlbumsSerializer(album, many=True)
             return Response(serializer.data[0], status=status.HTTP_409_CONFLICT)
         artista = Artistas.objects.get(id=id)
-        if len(id1) > 22:
-            id1 = id1[0:22]
         artist = "https://tarea2pvlecaros.herokuapp.com/artists/"+id
         tracks = "https://tarea2pvlecaros.herokuapp.com/albums/"+id1+"/tracks"
         yo = "https://tarea2pvlecaros.herokuapp.com/albums/"+id1
