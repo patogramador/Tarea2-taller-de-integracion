@@ -20,9 +20,9 @@ class ArtistasList(APIView):
     def post(self, request):
         info = request.data
         id = b64encode(info['name'].encode()).decode('utf-8')
-        albums = "https://apihost.com/artists/"+id+"/albums"
-        tracks = "https://apihost.com/artists/"+id+"/tracks"
-        yo = "https://apihost.com/artists/"+id
+        albums = "https://tarea2pvlecaros.herokuapp.com/"+id+"/albums"
+        tracks = "https://tarea2pvlecaros.herokuapp.com/"+id+"/tracks"
+        yo = "https://tarea2pvlecaros.herokuapp.com/artists/"+id
         edad = int(info['age'])
         nuevo_artista = Artistas.objects.create(id=id, name=info['name'], age=edad, albums=albums, tracks=tracks)
         nuevo_artista.self = yo
@@ -90,9 +90,9 @@ class AlbumsArtista(APIView):
         artista = Artistas.objects.get(id=id)
         if len(id1) > 22:
             id1 = id1[0:22]
-        artist = "https://apihost.com/artists/"+id
-        tracks = "https://apihost.com/albums/"+id1+"/tracks"
-        yo = "https://apihost.com/albums/"+id1
+        artist = "https://tarea2pvlecaros.herokuapp.com/artists/"+id
+        tracks = "https://tarea2pvlecaros.herokuapp.com/albums/"+id1+"/tracks"
+        yo = "https://tarea2pvlecaros.herokuapp.com/albums/"+id1
         nuevo_album = Album.objects.create(id=id1, artist_id=id, name=info['name'], genre=info['genre'], artist=artist, tracks=tracks, padre=artista)
         nuevo_album.self = yo
         nuevo_album.save()
@@ -128,9 +128,9 @@ class CancionesAlbum(APIView):
             id1 = id1[0:22]
         id_artista = Album.objects.get(id=id)
         id_artista = id_artista.artist_id
-        artist= "https://apihost.com/artists/"+id_artista
-        album= "https://apihost.com/albums/"+id
-        yo = "https://apihost.com/tracks/"+id1
+        artist= "https://tarea2pvlecaros.herokuapp.com/artists/"+id_artista
+        album= "https://tarea2pvlecaros.herokuapp.com/albums/"+id
+        yo = "https://tarea2pvlecaros.herokuapp.com/tracks/"+id1
         nueva_cancion = Cancion.objects.create(id=id1, album_id=id, name=info['name'], duration=float(info['duration']), times_played=0, artist=artist , album=album, padre=padre)
         nueva_cancion.self = yo
         nueva_cancion.save()
